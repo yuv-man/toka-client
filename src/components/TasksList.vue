@@ -1,0 +1,62 @@
+<template>
+  <div class="task-list">
+    <TaskCard
+      v-for="task in projectTasks"
+      :projectId="projectId"
+      :key="task.id"
+      :task="task"
+      @update="updateTaskAction"
+      @delete="deleteTaskAction"
+    />
+  </div>
+</template>
+
+<script>
+import TaskCard from './TaskCard.vue'
+import { mapState, mapActions } from 'vuex';
+
+export default {
+  components: {
+    TaskCard
+  },
+
+  props: {
+    projectId: {
+      type: String || undefined,
+      required: false
+    },
+  },
+  computed: {
+    ...mapState(['tasks']),
+    tasksState() {
+      const queryState = this.$route.query.state;
+      return queryState || null;
+    },
+    projectTasks() {
+      if (!this.projectId && !this.tasksState) return this.tasks;
+      return this.tasks.filter(task => {
+        const matchesProject = !this.projectId || task.projectId === this.projectId;
+        const matchesState = !this.tasksState || task.state === this.tasksState;
+        return matchesProject && matchesState;
+      });
+    }
+  }, 
+  methods: {
+    ...mapActions(['deleteTask', 'updateTask']),
+    deleteTaskAction(taskId) {
+      this.deleteTask(taskId)
+    },
+    updateTaskAction(task) {
+      this.updateTask(task)
+    }
+  } 
+}
+</script>
+
+<style scoped>
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+</style>
