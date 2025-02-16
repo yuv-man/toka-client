@@ -1,5 +1,9 @@
 <template>
-  <nav class="master-navigation">    
+  <nav class="master-navigation">
+    <div class="master-logo">
+      <img src="../../public/logo.svg" alt="logo" style="height: 40px; width: 40px; margin-right: 5px;"/>
+      <span>Projects Master</span>
+    </div>    
     <div class="nav-section">
       <div class="section-title">
         <img src="../assets/project.svg" alt="project" style="width: 12px; height: 12px; margin-right: 5px;" />
@@ -58,16 +62,21 @@ import { mapState } from 'vuex';
 nav.master-navigation {
   padding: 20px;
   .master-logo {
-    font-size: 24px;
-    min-height: 56px;
     display: flex;
     align-items: center;
-    margin: 0 0 20px 0;
+    justify-content: start;
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: #074799;
+    font-weight: bold;
+    font-family: Lexend;
   }
   .nav-section {
     margin-bottom: 16px;
     
     .section-title {
+      display: flex;
+      align-items: center;
       font-weight: bold;
       margin-bottom: 8px;
     }
@@ -90,6 +99,7 @@ nav.master-navigation {
       font-weight: normal;
       font-size: 14px;
     }
+
   }
 }
 </style>
