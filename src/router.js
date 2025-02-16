@@ -1,7 +1,5 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
-import Home from "./views/home/Home.vue";
-//import Projects from "./views/projects/Projects.vue";
 import ProjectsList from "./views/projects/ProjectsList.vue";
 import ProjectDetails from "./views/projects/ProjectDetails.vue";
 import TasksView from "./views/tasks/TasksView.vue";
@@ -12,7 +10,7 @@ const routes = [
   {
     path: "/",
     name: "home",
-    component: Home,
+    component: ProjectsList,
   },
   {
     path: "/projects",

@@ -1,14 +1,18 @@
 <template>
     <div class="modal-overlay">
       <div class="project-form">
+        <button class="close-btn" @click="$emit('close')">&times;</button>
         <h2>{{isEditing ? "Edit Project" : "Create New Project"}} </h2>
         <form @submit.prevent="submitProject">
-          <input
-            v-model="name"
-            type="text"
-            placeholder="Project name"
-            required
-          >
+          <div class="form-group">
+            <input
+              v-model="name"
+              type="text"
+              placeholder="Project name"
+              :class="{ 'error': nameError }"
+            >
+            <span v-if="nameError" class="error-message">Project name is required</span>
+          </div>
           <textarea
             v-model="description"
             placeholder="Project description"
@@ -42,12 +46,17 @@ export default {
   data() {
     return {
       name: this.project?.name || '',
-      description: this.project?.description || ''
+      description: this.project?.description || '',
+      nameError: false
     };
   },
   methods: {
     submitProject() {
-      if (!this.name.trim()) return;
+      if (!this.name.trim()) {
+        this.nameError = true;
+        return;
+      }
+      this.nameError = false;
 
       const project = {
         ...(this.project?._id && { _id: this.project._id }),
@@ -83,6 +92,7 @@ export default {
   width: 100%;
   max-width: 500px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
 }
 
 form {
@@ -123,5 +133,36 @@ button.cancel {
 
 button:hover {
   opacity: 0.9;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #666;
+  cursor: pointer;
+  padding: 5px 10px;
+}
+
+.close-btn:hover {
+  color: #333;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.error {
+  border-color: #dc3545;
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 0.875rem;
 }
 </style>

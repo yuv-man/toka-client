@@ -179,7 +179,6 @@ export default {
 }
 
 .task-controls {
-  display: flex;
   gap: 12px;
   align-items: center;
 }

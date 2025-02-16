@@ -341,6 +341,7 @@ function setupWebSocketListeners() {
       }
     } catch (error) {
       console.error('Error processing websocket message:', error, message);
+      store.commit('SET_ERROR', `WebSocket error: ${error.message}`);
     }
   });
 }
@@ -351,7 +352,13 @@ setupWebSocketListeners();
 // Handle WebSocket reconnection
 socketService.on('close', () => {
   console.log('WebSocket disconnected, attempting to reconnect...');
+  store.commit('SET_ERROR', 'WebSocket disconnected. Attempting to reconnect...');
   setTimeout(setupWebSocketListeners, 5000);
+});
+
+socketService.on('error', (error) => {
+  console.error('WebSocket error:', error);
+  store.commit('SET_ERROR', `WebSocket connection error: ${error.message}`);
 });
 
 export default store;

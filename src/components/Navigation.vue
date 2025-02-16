@@ -1,9 +1,10 @@
 <template>
-  <nav class="master-navigation">
-    <router-link to="/" class="master-logo">My Test App</router-link>
-    
+  <nav class="master-navigation">    
     <div class="nav-section">
-      <div class="section-title">Projects</div>
+      <div class="section-title">
+        <img src="../assets/project.svg" alt="project" style="width: 12px; height: 12px; margin-right: 5px;" />
+        <span>Projects</span>
+      </div>
       <router-link class="child" to="/projects">All Projects</router-link>
       <router-link 
         v-for="project in projects" 
@@ -16,7 +17,10 @@
     </div>
 
     <div class="nav-section">
-      <div class="section-title">Tasks</div>
+      <div class="section-title">
+        <img src="../assets/task.svg" alt="task" style="width: 12px; height: 12px; margin-right: 5px;" />
+        <span>Tasks</span>
+      </div>
       <router-link class="child" to="/tasks" exact>All Tasks</router-link>
       <router-link 
         class="child" 

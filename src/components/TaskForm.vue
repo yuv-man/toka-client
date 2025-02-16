@@ -1,14 +1,16 @@
 <template>
-    <div class="task-form">
+    <div :class="['task-form', isEditing ? '' : 'frame']">
         <button class="close-btn" @click="$emit('close')">X</button>
       <h2>{{ isEditing ? 'Edit Task' : 'Add New Task' }}</h2>
       <form @submit.prevent="submitTask">
-        <input
-          v-model="name"
-          type="text"
-          placeholder="Task name"
-          required
-        >
+        <div class="input-group">
+          <input
+            v-model="name"
+            type="text"
+            placeholder="Task name"
+          >
+          <span v-if="showError" class="error-message">Task name is required</span>
+        </div>
         <textarea
           v-model="notes"
           placeholder="Task notes"
@@ -27,7 +29,7 @@
 export default {
   props: {
     projectId: {
-      type: String || undefined,
+      type: String,
       required: true
     },
     task: {
@@ -46,7 +48,8 @@ export default {
       name: this.task ? this.task.name : '',
       notes: this.task ? this.task.notes : '',
       dueDate: this.task ? this.formatDate(this.task.dueDate) : this.formatDate(new Date()),
-      state: this.task ? this.task.state : 'CREATED'
+      state: this.task ? this.task.state : 'CREATED',
+      showError: false
     };
   },
 
@@ -57,7 +60,11 @@ export default {
     },
 
     submitTask() {
-      if (!this.name.trim()) return;
+      if (!this.name.trim()) {
+        this.showError = true;
+        return;
+      }
+      this.showError = false;
 
       const task = {
         _id: this.isEditing ? this.task._id : undefined,
@@ -126,7 +133,25 @@ button:hover {
 }
 
 .close-btn:hover {
-  color: #45a049;
-  color: #fff;
+  color: #888;
+  background-color: white;
+}
+
+.frame {
+  padding: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid lightgray;
+  border-radius: 10px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
 }
 </style>

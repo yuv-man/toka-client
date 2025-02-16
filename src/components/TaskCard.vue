@@ -1,5 +1,15 @@
 <template>
   <div class="task-item">
+
+    <ConfirmationPopup
+      v-if="showDeleteConfirm"
+      title="Delete Task"
+      message="Are you sure you want to delete this task?"
+      confirm-text="Delete"
+      @confirm="confirmDelete"
+      @cancel="cancelDelete"
+    />
+
     <div v-if="isEditing" class="edit-form">
       <TaskForm
         :projectId="isEditing ? task.projectId : projectId"
@@ -38,7 +48,7 @@
           <button @click="startEdit" class="project-button">
             <img class="button-icon" src="../assets/edit-pencil.svg" alt="edit" />
           </button>
-          <button @click="$emit('delete', task._id)" class="project-button delete">
+          <button @click="showDeleteConfirm = true" class="project-button delete">
             <img class="button-icon" src="../assets/trash-delete-bin.svg" alt="trash" />
           </button>
         </div>
@@ -53,7 +63,8 @@ import { TASK_STATES } from '../enums/taskState'
 
 export default {
   components: {
-    TaskForm: () => import('./TaskForm.vue')
+    TaskForm: () => import('./TaskForm.vue'),
+    ConfirmationPopup: () => import('./ConfirmationPopup.vue')
   },
 
   props: {
@@ -70,12 +81,20 @@ export default {
   data() {
     return {
       isEditing: false,
-      TASK_STATES
+      TASK_STATES,
+      showDeleteConfirm: false,
+      nameError: null
     }
   },
 
   methods: {
-    ...mapActions(['updateTask']),
+    ...mapActions(['updateTask', 'deleteTask']),
+    
+    confirmDelete() {
+      this.deleteTask(this.task._id)
+      this.showDeleteConfirm = false
+    },
+    
     startEdit() {
       this.isEditing = true;
     },
@@ -85,6 +104,11 @@ export default {
     },
 
     saveEdit(updatedTask) {
+      if (!updatedTask.name || updatedTask.name.trim() === '') {
+        this.nameError = 'Task name is required';
+        return;
+      }
+      this.nameError = null;
       this.updateTask(updatedTask);
       this.isEditing = false;
     },
@@ -103,6 +127,10 @@ export default {
         month: 'short',
         year: 'numeric'
       });
+    },
+    cancelDelete(e) {
+      e?.stopPropagation();
+      this.showDeleteConfirm = false;
     }
   },
 
@@ -148,17 +176,17 @@ export default {
 }
 
 .status-badge.created {
-  background-color: #ffeb3b;
-  color: #000;
+  background-color: #BCCCDC;
+  color: white;
 }
 
 .status-badge.in_progress {
-  background-color: #2196f3;
+  background-color: #FF9D23;
   color: white;
 }
 
 .status-badge.completed {
-  background-color: #4caf50;
+  background-color: #16C47F;
   color: white;
 }
 
@@ -196,6 +224,7 @@ select:focus {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  width: 100%
 }
 
 input, textarea {
@@ -282,5 +311,11 @@ button {
 
 .near-due-date img {
   filter: invert(32%) sepia(93%) saturate(2728%) hue-rotate(341deg) brightness(99%) contrast(111%);
+}
+
+.error-message {
+  color: #f44336;
+  font-size: 12px;
+  margin-top: 4px;
 }
 </style>
