@@ -12,7 +12,9 @@
             <span>{{ completedTaskCount }}/{{ projectTasks.length }}</span>
           </div>
           <div class="progress-bar">
-            <div :style="{ width: `${completionPercentage}%` }" class="progress"></div>
+            <div :class="['progress', completionPercentage === 100 ? 'completed' : '']" 
+                 :style="{ width: `${completionPercentage}%` }">
+            </div>
           </div>
         </div>
         <div class="actions" @click.stop>
@@ -28,21 +30,13 @@
         </div>
       </div>
       
-      <div v-else class="edit-form" @click.stop>
-        <input
-          v-model="editedName"
-          type="text"
-          placeholder="Project name"
-        >
-        <textarea
-          v-model="editedDescription"
-          placeholder="Project description"
-        ></textarea>
-        <div class="actions">
-          <button @click="saveEdit">Save</button>
-          <button @click="cancelEdit">Cancel</button>
-        </div>
-      </div>
+      <ProjectForm
+        v-else
+        :isEditing="true"
+        :project="project"
+        @submit="saveEdit"
+        @close="cancelEdit"
+      />
 
       <ConfirmationPopup
         v-if="showDeleteConfirm"
@@ -58,11 +52,13 @@
 <script>
 import { mapState } from 'vuex';
 import ConfirmationPopup from './ConfirmationPopup.vue';
+import ProjectForm from './ProjectForm.vue';
 
 export default {
   name: 'ProjectCard',
   components: {
-    ConfirmationPopup
+    ConfirmationPopup,
+    ProjectForm
   },
   props: {
     project: {
@@ -74,8 +70,6 @@ export default {
   data() {
     return {
       isEditing: false,
-      editedName: this.project.name,
-      editedDescription: this.project.description,
       showDeleteConfirm: false,
     }
   },
@@ -100,12 +94,10 @@ export default {
         this.viewProject();
       }
     },
-    saveEdit() {
+    saveEdit(formData) {
       this.$emit('update', {
         ...this.project,
-        name: this.editedName,
-        description: this.editedDescription,
-        updatedAt: new Date()
+        ...formData,
       });
       this.isEditing = false;
     },
@@ -210,8 +202,12 @@ button:hover {
 
 .progress {
   height: 100%;
-  background-color: #4CAF50;
+  background-color: #f3ae1a;
   transition: width 0.3s ease;
+}
+
+.progress.completed {
+  background-color: #4CAF50;
 }
 
 .project-name {

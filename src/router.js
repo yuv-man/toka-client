@@ -4,7 +4,7 @@ import Home from "./views/home/Home.vue";
 //import Projects from "./views/projects/Projects.vue";
 import ProjectsList from "./views/projects/ProjectsList.vue";
 import ProjectDetails from "./views/projects/ProjectDetails.vue";
-import TasksList from "./components/TasksList.vue";
+import TasksView from "./views/tasks/TasksView.vue";
 
 Vue.use(VueRouter);
 
@@ -28,7 +28,7 @@ const routes = [
   {
     path: "/tasks",
     name: "tasks",
-    component: TasksList,
+    component: TasksView,
   },
 ];
 

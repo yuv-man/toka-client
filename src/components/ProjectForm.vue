@@ -1,7 +1,7 @@
 <template>
     <div class="modal-overlay">
       <div class="project-form">
-        <h2>Create New Project</h2>
+        <h2>{{isEditing ? "Edit Project" : "Create New Project"}} </h2>
         <form @submit.prevent="submitProject">
           <input
             v-model="name"
@@ -15,7 +15,7 @@
           ></textarea>
 
           <div class="actions">
-            <button type="submit">Create Project</button>
+            <button type="submit">{{ isEditing ? 'Update Project' : 'Create Project' }}</button>
             <button type="button" @click="$emit('close')" class="cancel">
               Cancel
             </button>
@@ -29,10 +29,20 @@
 
 export default {
   name: 'ProjectForm',
+  props: {
+    project: {
+      type: Object,
+      require: false
+    },
+    isEditing: {
+      type: Boolean,
+      default: false
+    }
+  },
   data() {
     return {
-      name: '',
-      description: ''
+      name: this.project?.name || '',
+      description: this.project?.description || ''
     };
   },
   methods: {
@@ -40,11 +50,9 @@ export default {
       if (!this.name.trim()) return;
 
       const project = {
-        id: crypto.randomUUID(),
+        ...(this.project?._id && { _id: this.project._id }),
         name: this.name,
         description: this.description,
-        createdAt: new Date(),
-        updatedAt: new Date()
       };
 
       this.$emit('submit', project);

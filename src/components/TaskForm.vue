@@ -80,11 +80,7 @@ export default {
 <style scoped>
 .task-form {
   position: relative;
-  background: white;
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px;
 }
 
 form {
@@ -120,8 +116,8 @@ button:hover {
 
 .close-btn {
   position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
+  top: 8px;
+  right: 4px;
   background: none;
   border: none;
   cursor: pointer;
