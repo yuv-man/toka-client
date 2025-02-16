@@ -1,24 +1,59 @@
 <template>
   <div v-if="project" class="project-detail">
     <div class="header">
-      <h1>{{ project.name }}</h1>
-      <p>{{ project.description }}</p>
+      <div class="project-header">
+        <h1>{{ project.name }}</h1>
+        <button class="edit-btn" @click="showProjectForm = true">
+          <img class="edit-icon" src="../../assets/edit-pencil-grey.svg" alt="edit" />
+        </button>
+      </div>
+      <p class="project-desc">{{ project.description }}</p>
     </div>
 
+    <ProjectForm
+      v-if="showProjectForm"
+      :isEditing="true"
+      :project="project"
+      @submit="handleProjectSubmit"
+      @close="showProjectForm = false"
+    />
+
     <div class="tasks-section">
-      <TaskForm 
-        v-if="showTaskForm"
-        :projectId="id" 
-        @submit="handleTaskSubmit" 
-        @close="showTaskForm = false"
-      />
-      <button 
-        class="add-task-btn" v-else @click="showTaskForm = true"><strong>+</strong> Add Task
-      </button>
+      <div class="task-controls">
+        <TaskForm 
+          v-if="showTaskForm"
+          :projectId="id" 
+          @submit="handleTaskSubmit" 
+          @close="showTaskForm = false"
+        />
+        <div v-else class="filters-section">
+          <div class="search-and-filter">
+            <SearchInput
+              :modelValue="searchQuery"
+              @update:modelValue="searchQuery = $event"
+              placeholder="Search tasks..."
+            />
+            <div class="filter">
+              <img src="../../assets/filter.svg" alt="filter" style="width: 16px; height: 16px" />
+              <select v-model="taskFilter" class="task-filter">
+                <option value="" default>All Tasks</option>
+                <option value="CREATED">{{ TASK_STATES.CREATED }}</option>
+                <option value="IN_PROGRESS">{{ TASK_STATES.IN_PROGRESS }}</option>
+                <option value="COMPLETED">{{ TASK_STATES.COMPLETED }}</option>
+              </select>
+            </div>
+          </div>
+          <button 
+            class="add-task-btn" 
+            @click="showTaskForm = true"
+          ><strong>+</strong> Add Task</button>
+        </div>
+      </div>
 
       <TaskList
         :projectId="id || undefined"
-        @update="updateTask"
+        :filter="taskFilter"
+        :searchQuery="searchQuery"
       />
     </div>
   </div>
@@ -28,17 +63,27 @@
 import { mapGetters, mapActions, mapState } from 'vuex';
 import TaskList from '../../components/TasksList.vue';
 import TaskForm from '../../components/TaskForm.vue';
+import ProjectForm from '../../components/ProjectForm.vue';
+import SearchInput from '../../components/SearchInput.vue';
+import { TASK_STATES } from '@/enums/taskState';
 
 export default {
   name: 'ProjectDetails',
   components: {
     TaskList,
-    TaskForm
+    TaskForm,
+    ProjectForm,
+    SearchInput
   },
   data() {
     return {
       project: null,
-      showTaskForm: false
+      showTaskForm: false,
+      showProjectForm: false,
+      taskFilter: '',
+      searchQuery: '',
+      searchTimeout: null,
+      TASK_STATES
     };
   },
   computed: {
@@ -49,15 +94,19 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['addTask', 'updateTask', 'deleteTask', 'searchTasks']),
+    ...mapActions(['addTask', 'updateTask', 'deleteTask', 'updateProject']),
     async initialProject() {
       this.project = await this.getProjectById(this.id);
-      //await this.searchTasks({ projectId: this.id });
     },
     handleTaskSubmit(task) {
       this.addTask(task);
       this.showTaskForm = false;
-    }
+    },
+    handleProjectSubmit(updatedProject) {
+      this.updateProject(updatedProject);
+      this.showProjectForm = false;
+      this.project = updatedProject;
+    },
   },
   watch: {
     id: {
@@ -65,24 +114,23 @@ export default {
       immediate: true
     }
   },
+  beforeDestroy() {
+    clearTimeout(this.searchTimeout);
+  },
 }
 </script>
 
 <style scoped>
 .project-detail {
-  padding: 2rem;
+  padding: 20px;
 }
 
 .header {
-  margin-bottom: 2rem;
-}
-
-.header h1 {
-  margin-bottom: 0.5rem;
+  margin-bottom: 10px;
 }
 
 .tasks-section {
-  margin-top: 2rem;
+  margin-top: 20px;
 }
 
 .add-task-btn {
@@ -92,10 +140,74 @@ export default {
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  margin-bottom: 1rem;
 }
 
 .add-task-btn:hover {
   background-color: #45a049;
+}
+
+.project-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.edit-btn {
+  padding: 5px;
+  background: none;
+  border: 1.5px solid #aaa;
+  cursor: pointer;
+  border-radius: 50%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 10px;
+}
+
+.edit-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.edit-btn:hover {
+  color: lightgray;
+}
+
+.project-desc {
+  margin-top: 0;
+  color: grey;
+}
+
+.task-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.task-filter {
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid white;
+  background-color: white;
+  cursor: pointer;
+}
+
+.filters-section {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.filter {
+  display: flex; 
+  align-items: center;
+}
+
+.search-and-filter {
+  display: flex;
+  gap: 12px;
+  align-items: center;
 }
 </style>

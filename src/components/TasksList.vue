@@ -25,19 +25,33 @@ export default {
       type: String || undefined,
       required: false
     },
+    filter: {
+      type: String,
+      require: false,
+      default: ""
+    },
+    searchQuery: {
+      type: String,
+      default: ""
+    }
   },
   computed: {
     ...mapState(['tasks']),
     tasksState() {
-      const queryState = this.$route.query.state;
+      let queryState = this.$route.query.state;
+      if (this.filter) {
+        queryState = this.filter;
+      }
       return queryState || null;
     },
     projectTasks() {
-      if (!this.projectId && !this.tasksState) return this.tasks;
+      if (!this.projectId && !this.tasksState && !this.searchQuery) return this.tasks;
       return this.tasks.filter(task => {
         const matchesProject = !this.projectId || task.projectId === this.projectId;
         const matchesState = !this.tasksState || task.state === this.tasksState;
-        return matchesProject && matchesState;
+        const matchesSearch = !this.searchQuery || 
+          task.name.toLowerCase().includes(this.searchQuery.toLowerCase());
+        return matchesProject && matchesState && matchesSearch;
       });
     }
   }, 
